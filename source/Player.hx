@@ -12,7 +12,8 @@ class Player extends FlxSprite
 	{
 		super(x, y);
 
-		makeGraphic(16, 16, FlxColor.WHITE);
+		// makeGraphic(16, 16, FlxColor.WHITE);
+		loadGraphic("assets/images/player.png", true, 16, 16);
 	}
 
 	function move(elapsed:Float)
@@ -22,7 +23,7 @@ class Player extends FlxSprite
 		var down = FlxG.keys.anyPressed([S, DOWN]);
 		var right = FlxG.keys.anyPressed([D, RIGHT]);
 
-		var delay = 0.1;
+		var delay = 0.075;
 
 		if (moveTimer > delay)
 		{
