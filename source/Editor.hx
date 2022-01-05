@@ -56,7 +56,7 @@ class Editor extends FlxState
 
 	override function create()
 	{
-		FlxG.camera.flash(0x00000000);
+		FlxG.camera.fade(FlxColor.BLACK, 0.5, true);
 
 		_grid = new FlxTypedGroup<FlxSprite>();
 
@@ -316,31 +316,44 @@ class Editor extends FlxState
 			}
 		}
 
-		if (FlxG.keys.justPressed.Q)
+		if (!song.playing)
 		{
-			if (curPlaced == 0)
-				curPlaced = enemAmount - 1;
-			else
-				curPlaced--;
-		}
-		else if (FlxG.keys.justPressed.E)
-		{
-			if (curPlaced == enemAmount - 1)
-				curPlaced = 0;
-			else
-				curPlaced++;
+			if (FlxG.keys.justPressed.Q)
+			{
+				if (curPlaced == 0)
+					curPlaced = enemAmount - 1;
+				else
+					curPlaced--;
+			}
+			else if (FlxG.keys.justPressed.E)
+			{
+				if (curPlaced == enemAmount - 1)
+					curPlaced = 0;
+				else
+					curPlaced++;
+			}
 		}
 
-		if (FlxG.keys.justPressed.Q || FlxG.keys.justPressed.E)
+		if (!song.playing)
 		{
-			song.time = times[curPlaced];
+			if (FlxG.keys.justPressed.Q || FlxG.keys.justPressed.E)
+			{
+				song.time = times[curPlaced];
+			}
 		}
 
 		for (time in 0...times.length)
 		{
-			if (song.time == times[time])
+			if (!song.playing)
 			{
-				sprites[time].visible = true;
+				if (song.time == times[time])
+				{
+					sprites[time].visible = true;
+				}
+				else
+				{
+					sprites[time].visible = false;
+				}
 			}
 			else
 			{

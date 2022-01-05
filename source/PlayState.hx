@@ -17,6 +17,8 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxSpriteUtil;
 import flixel.util.FlxTimer;
+import spawners.DropperSpawn;
+import spawners.LaserSpawn;
 
 class PlayState extends FlxState
 {
@@ -39,12 +41,16 @@ class PlayState extends FlxState
 
 	private var _player:Player;
 
-	private var enemies:Spawner;
+	private var enemies:FlxTypedGroup<FlxTypedGroup<Enemy>>;
+	private var lasers:LaserSpawn;
+	private var droppers:DropperSpawn;
 
 	var spawn:Bool;
 
 	override public function create()
 	{
+		FlxG.camera.fade(FlxColor.BLACK, 0.5, true);
+
 		song = new FlxSound();
 		song.loadEmbedded("assets/music/storm.ogg", true, true);
 		add(song);
@@ -55,13 +61,18 @@ class PlayState extends FlxState
 
 		lastBeat = 0;
 
-		_player = new Player();
+		_player = new Player(FlxG.width / 2, FlxG.height / 2);
 		add(_player);
 
 		_grid = new FlxTypedGroup<FlxSprite>();
-		createGrid(0.1);
+		createGrid(0.05);
 
-		enemies = new Spawner();
+		lasers = new LaserSpawn();
+		droppers = new DropperSpawn();
+
+		enemies = new FlxTypedGroup<FlxTypedGroup<Enemy>>();
+		enemies.add(lasers);
+		enemies.add(droppers);
 		add(enemies);
 
 		super.create();
@@ -102,19 +113,26 @@ class PlayState extends FlxState
 			_totalBars += _totalBeats / 4;
 		}
 
-		enemies.spawn();
-
-		for (enemy in enemies)
+		for (spawner in enemies)
 		{
-			if (!enemy.alive)
+			for (enemy in spawner)
 			{
-				enemies.remove(enemy);
+				if (!enemy.alive)
+				{
+					spawner.remove(enemy);
+				}
 			}
+		}
+
+		if (FlxG.overlap(_player, enemies))
+		{
+			FlxG.camera.shake(0.02, 0.2);
+			FlxG.camera.flash(FlxColor.RED, 0.25);
 		}
 
 		if (FlxG.keys.justPressed.SEVEN)
 		{
-			FlxG.switchState(new Editor());
+			FlxG.camera.fade(FlxColor.BLACK, 0.5, false, function() FlxG.switchState(new Editor()));
 		}
 
 		FlxSpriteUtil.bound(_player);
